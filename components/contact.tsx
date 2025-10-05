@@ -11,31 +11,8 @@ export function Contact() {
   const isInView = useInView(ref, { once: true, margin: "-100px" })
 
   const socialLinks = [
-    { icon: Github, href: "#", label: "GitHub", color: "hover:text-muted-foreground" },
-    { icon: Twitter, href: "#", label: "Twitter", color: "hover:text-blue-400" },
-    { icon: Linkedin, href: "#", label: "LinkedIn", color: "hover:text-blue-500" },
-    { icon: Instagram, href: "#", label: "Instagram", color: "hover:text-pink-400" },
-  ]
-
-  const contactInfo = [
-    {
-      icon: Mail,
-      title: "Email",
-      value: "codeclub@university.edu",
-      href: "mailto:codeclub@university.edu",
-    },
-    {
-      icon: Phone,
-      title: "Phone",
-      value: "+1 (555) 123-4567",
-      href: "tel:+15551234567",
-    },
-    {
-      icon: MapPin,
-      title: "Location",
-      value: "Computer Science Building, Room 201",
-      href: "#",
-    },
+    { icon: Linkedin, href: "https://www.linkedin.com/company/codeclubaiml/", label: "LinkedIn", color: "hover:text-blue-500" },
+    { icon: Instagram, href: "https://www.instagram.com/codeclub_pesmcoe?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==", label: "Instagram", color: "hover:text-pink-400" },
   ]
 
   return (
@@ -70,33 +47,28 @@ export function Contact() {
                   <input
                     type="text"
                     placeholder="First Name"
-                    className="glass rounded-lg px-4 py-3 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 transition-all"
-                    style={{ focusRingColor: "var(--accent-blue)" }}
+                    className="glass rounded-lg px-4 py-3 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent-blue transition-all"
                   />
                   <input
                     type="text"
                     placeholder="Last Name"
-                    className="glass rounded-lg px-4 py-3 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 transition-all"
-                    style={{ focusRingColor: "var(--accent-blue)" }}
+                    className="glass rounded-lg px-4 py-3 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent-blue transition-all"
                   />
                 </div>
                 <input
                   type="email"
                   placeholder="Email Address"
-                  className="w-full glass rounded-lg px-4 py-3 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 transition-all"
-                  style={{ focusRingColor: "var(--accent-blue)" }}
+                  className="w-full glass rounded-lg px-4 py-3 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent-blue transition-all"
                 />
                 <input
                   type="text"
                   placeholder="Subject"
-                  className="w-full glass rounded-lg px-4 py-3 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 transition-all"
-                  style={{ focusRingColor: "var(--accent-blue)" }}
+                  className="w-full glass rounded-lg px-4 py-3 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent-blue transition-all"
                 />
                 <textarea
                   placeholder="Your Message"
                   rows={5}
-                  className="w-full glass rounded-lg px-4 py-3 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 transition-all resize-none"
-                  style={{ focusRingColor: "var(--accent-blue)" }}
+                  className="w-full glass rounded-lg px-4 py-3 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent-blue transition-all resize-none"
                 />
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                   <Button
@@ -125,7 +97,6 @@ export function Contact() {
               <p className="text-muted-foreground">Follow us for updates, events, and highlights.</p>
             </div>
             <div className="flex items-center gap-3">
-              {/* using existing socialLinks from this file */}
               {socialLinks.map((social, index) => (
                 <motion.a
                   key={social.label}
