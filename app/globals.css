@@ -218,6 +218,19 @@ html {
   background-clip: text;
 }
 
+/* Navbar logo styling */
+.nav-logo {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  background: transparent;
+  /* If your PNG already has transparency this is sufficient.
+     If the image has a solid black background you'll need to replace it with a transparent file.
+     You can try experimenting with mix-blend-mode, but results vary depending on the image and background: */
+  /* mix-blend-mode: multiply; */
+}
+
 /* Static background pattern - no animations */
 .particles {
   position: fixed;

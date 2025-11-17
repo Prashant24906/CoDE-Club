@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label"
 import ImageCropperDialog from "@/components/image-cropper-dialog"
 import Image from "next/image"
 import Link from "next/link"
+import { uploadMemberImage } from "@/lib/uploadthing"
 
 import { useEffect, useState, useMemo } from "react"
 
@@ -35,7 +36,6 @@ const DEFAULT_DEPARTMENTS = [
 export default function MembersAdminPage() {
   const [members, setMembers] = useState<Member[]>([])
 
-  // Add form state
   const [name, setName] = useState("")
   const [role, setRole] = useState("")
   const [deptOptions, setDeptOptions] = useState<string[]>([...DEFAULT_DEPARTMENTS])
@@ -45,7 +45,6 @@ export default function MembersAdminPage() {
   const [image, setImage] = useState<string | undefined>(undefined)
   const [isHead, setIsHead] = useState(false)
 
-  // Edit dialog state
   const [editOpen, setEditOpen] = useState(false)
   const [editingMemberId, setEditingMemberId] = useState<string | null>(null)
   const [eName, setEName] = useState("")
@@ -56,7 +55,6 @@ export default function MembersAdminPage() {
   const [eImage, setEImage] = useState<string | undefined>(undefined)
   const [eIsHead, setEIsHead] = useState(false)
 
-  // Crop dialogs
   const [addCropOpen, setAddCropOpen] = useState(false)
   const [addCropSrc, setAddCropSrc] = useState<string | null>(null)
   const [addZoom, setAddZoom] = useState(1)
@@ -65,7 +63,9 @@ export default function MembersAdminPage() {
   const [editCropSrc, setEditCropSrc] = useState<string | null>(null)
   const [editZoom, setEditZoom] = useState(1)
 
-  // Fetch members on mount
+  const [isUploading, setIsUploading] = useState(false)
+  const [editIsUploading, setEditIsUploading] = useState(false)
+
   useEffect(() => {
     async function fetchMembers() {
       try {
@@ -103,15 +103,22 @@ export default function MembersAdminPage() {
   }
 
   async function addMember() {
-    if (!canAdd) return
+    if (!canAdd || !image) return
     const finalDept = addingCustomDept ? customDept.trim() : department
     if (addingCustomDept && finalDept && !deptOptions.includes(finalDept)) {
       setDeptOptions((prev) => [...prev, finalDept])
     }
 
-    const newMember = { name: name.trim(), role: role.trim(), department: finalDept, image, isHead }
-
     try {
+      setIsUploading(true)
+      // Convert data URL to blob and upload to UploadThing
+      const response = await fetch(image)
+      const blob = await response.blob()
+      const file = new File([blob], "member-image.jpg", { type: "image/jpeg" })
+      const imageUrl = await uploadMemberImage(file)
+
+      const newMember = { name: name.trim(), role: role.trim(), department: finalDept, image: imageUrl, isHead }
+
       const res = await fetch("/api/members", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -121,7 +128,10 @@ export default function MembersAdminPage() {
       setMembers((prev) => [...prev, createdMember])
       resetAddForm()
     } catch (err) {
-      console.error(err)
+      console.error("Error adding member:", err)
+      alert("Failed to upload image or add member")
+    } finally {
+      setIsUploading(false)
     }
   }
 
@@ -138,7 +148,6 @@ export default function MembersAdminPage() {
     }
   }
 
-  // --- Add Dropzone ---
   const onAddDrop = (file?: File) => {
     if (!file) return
     const reader = new FileReader()
@@ -157,7 +166,6 @@ export default function MembersAdminPage() {
     accept: { "image/*": [] },
   })
 
-  // --- Edit Dialog Functions ---
   const openEditDialog = (member: Member) => {
     setEditingMemberId(member._id)
     setEName(member.name)
@@ -188,9 +196,19 @@ export default function MembersAdminPage() {
       setDeptOptions((prev) => [...prev, finalDept])
     }
 
-    const updatedMember = { name: eName.trim(), role: eRole.trim(), department: finalDept, image: eImage, isHead: eIsHead }
-
     try {
+      setEditIsUploading(true)
+      // Check if image is a new data URL (not a URL from UploadThing)
+      let finalImageUrl = eImage
+      if (eImage && eImage.startsWith("data:")) {
+        const response = await fetch(eImage)
+        const blob = await response.blob()
+        const file = new File([blob], "member-image.jpg", { type: "image/jpeg" })
+        finalImageUrl = await uploadMemberImage(file)
+      }
+
+      const updatedMember = { name: eName.trim(), role: eRole.trim(), department: finalDept, image: finalImageUrl, isHead: eIsHead }
+
       const res = await fetch("/api/members", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -201,11 +219,13 @@ export default function MembersAdminPage() {
       setEditOpen(false)
       resetEditForm()
     } catch (err) {
-      console.error(err)
+      console.error("Error saving member:", err)
+      alert("Failed to update member")
+    } finally {
+      setEditIsUploading(false)
     }
   }
 
-  // --- Edit Dropzone ---
   const onEditDrop = (file?: File) => {
     if (!file) return
     const reader = new FileReader()
@@ -283,7 +303,6 @@ export default function MembersAdminPage() {
           </div>
         )}
       </Card>
-
       {/* Add Member Form */}
       <Card className="glass-card rounded-xl p-6">
         <h2 className="mb-4 text-lg font-semibold">Add Member</h2>
@@ -348,11 +367,12 @@ export default function MembersAdminPage() {
         </div>
 
         <div className="mt-4">
-          <Button onClick={addMember} disabled={!canAdd} className="bg-cyan-600 hover:bg-cyan-700">Add Member</Button>
+          <Button onClick={addMember} disabled={!canAdd || isUploading} className="bg-cyan-600 hover:bg-cyan-700">
+            {isUploading ? "Uploading..." : "Add Member"}
+          </Button>
         </div>
       </Card>
 
-      {/* Add Cropper */}
       <ImageCropperDialog
         open={addCropOpen}
         onOpenChange={setAddCropOpen}
@@ -368,7 +388,6 @@ export default function MembersAdminPage() {
         outputHeight={512}
       />
 
-      {/* Edit Dialog */}
       <Dialog open={editOpen} onOpenChange={(v) => !v && setEditOpen(false)}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
@@ -420,12 +439,11 @@ export default function MembersAdminPage() {
 
           <DialogFooter className="mt-4 flex justify-between">
             <Button variant="outline" onClick={() => { setEditOpen(false); resetEditForm() }}>Cancel</Button>
-            <Button onClick={saveEdit} disabled={!canEdit}>Save Changes</Button>
+            <Button onClick={saveEdit} disabled={!canEdit || editIsUploading}>{editIsUploading ? "Saving..." : "Save Changes"}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Edit Cropper */}
       <ImageCropperDialog
         open={editCropOpen}
         onOpenChange={setEditCropOpen}

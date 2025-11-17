@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion"
 import { useState, useEffect } from "react"
+import { useSession, signIn, signOut } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
@@ -11,29 +12,25 @@ import { ParticleBackground } from "@/components/particle-background"
 import { AdminNavbar } from "@/components/admin-navbar"
 
 export default function AdminPage() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [quizEnabled, setQuizEnabled] = useState(false)
   const [eventsEnabled, setEventsEnabled] = useState(true)
-  const [registrationOpen, setRegistrationOpen] = useState(true)
-
-  // Load admin settings
   useEffect(() => {
     const adminSettings = localStorage.getItem("codeClubAdminSettings")
     if (adminSettings) {
       const settings = JSON.parse(adminSettings)
       setQuizEnabled(settings.quizEnabled || false)
       setEventsEnabled(settings.eventsEnabled || true)
-      setRegistrationOpen(settings.registrationOpen || true)
     }
   }, [])
 
-  const handleLogin = () => {
-    // Simple password check (in real app, this would be proper authentication)
-    if (password === "admin123") {
-      setIsAuthenticated(true)
-    } else {
+  const { data: session, status } = useSession()
+
+  const handleLogin = async () => {
+    // Use NextAuth credentials provider. The credentials provider only expects a password.
+    const res = await signIn("credentials", { redirect: false, password })
+    if ((res as any)?.error) {
       alert("Invalid password")
     }
   }
@@ -42,20 +39,47 @@ export default function AdminPage() {
     const settings = {
       quizEnabled,
       eventsEnabled,
-      registrationOpen,
       lastUpdated: new Date().toISOString(),
     }
     localStorage.setItem("codeClubAdminSettings", JSON.stringify(settings))
     alert("Settings saved successfully!")
   }
 
+  // dynamic stats (fetched from API)
+  const [membersCount, setMembersCount] = useState<number | null>(null)
+  const [eventsCount, setEventsCount] = useState<number | null>(null)
+  const [quizzesCount, setQuizzesCount] = useState<number | null>(null)
+
+  useEffect(() => {
+    async function fetchCounts() {
+      try {
+        const [mRes, eRes, qRes] = await Promise.all([
+          fetch("/api/members"),
+          fetch("/api/events"),
+          fetch("/api/quiz"),
+        ])
+
+        const [mData, eData, qData] = await Promise.all([mRes.json(), eRes.json(), qRes.json()])
+
+        // APIs return arrays of items; fall back to count fields if provided
+        setMembersCount(Array.isArray(mData) ? mData.length : (mData?.count ?? 0))
+        setEventsCount(Array.isArray(eData) ? eData.length : (eData?.count ?? 0))
+        setQuizzesCount(Array.isArray(qData) ? qData.length : (qData?.length ?? (qData?.count ?? 0)))
+      } catch (err) {
+        console.error("Failed to fetch admin stats:", err)
+      }
+    }
+
+    fetchCounts()
+  }, [])
+
   const stats = [
-    { label: "Members", value: "156", icon: Users, color: "text-cyan-400" },
-    { label: "Events", value: "8", icon: Calendar, color: "text-emerald-400" },
-    { label: "Quiz Attempts", value: "342", icon: BarChart3, color: "text-sky-400" },
+    { label: "Members", value: membersCount != null ? String(membersCount) : "—", icon: Users, color: "text-cyan-400" },
+    { label: "Events", value: eventsCount != null ? String(eventsCount) : "—", icon: Calendar, color: "text-emerald-400" },
+    { label: "Quizzes", value: quizzesCount != null ? String(quizzesCount) : "—", icon: BarChart3, color: "text-sky-400" },
   ]
 
-  if (!isAuthenticated) {
+  if (status !== "authenticated") {
     return (
       <main className="relative min-h-screen">
         <AdminNavbar />
@@ -100,14 +124,13 @@ export default function AdminPage() {
                   Access Admin Panel
                 </Button>
               </div>
-
-              <div className="mt-6 text-center text-sm text-muted-foreground">Demo password: admin123</div>
             </Card>
           </motion.div>
         </div>
       </main>
     )
   }
+
 
   return (
     <main className="relative min-h-screen">
@@ -178,16 +201,7 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-foreground">Registration</h3>
-                <div className="flex items-center justify-between p-4 bg-background/20 rounded-lg">
-                  <div>
-                    <p className="text-foreground font-medium">Open Registration</p>
-                    <p className="text-sm text-muted-foreground">Allow new member signups</p>
-                  </div>
-                  <Switch checked={registrationOpen} onCheckedChange={setRegistrationOpen} />
-                </div>
-              </div>
+              
             </div>
 
             <div className="flex justify-end mt-8">

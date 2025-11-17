@@ -24,43 +24,72 @@ export default function QuizPage() {
     }
   }, [])
 
-  const sampleQuestions = [
-    {
-      question: "What does HTML stand for?",
-      options: [
-        "Hyper Text Markup Language",
-        "High Tech Modern Language",
-        "Home Tool Markup Language",
-        "Hyperlink and Text Markup Language",
-      ],
-      correct: 0,
-    },
-    {
-      question: "Which of the following is a JavaScript framework?",
-      options: ["React", "HTML", "CSS", "Python"],
-      correct: 0,
-    },
-    {
-      question: "What is the purpose of CSS?",
-      options: ["To add interactivity", "To style web pages", "To create databases", "To handle server requests"],
-      correct: 1,
-    },
-  ]
+
+  // Quiz data from API
+  type Option = { id: string; text: string; isCorrect: boolean }
+  type Question = { id: string; text: string; options: Option[] }
+  type Quiz = { _id?: string; id?: string; title: string; description?: string; questions: Question[] }
+
+  const [quizzes, setQuizzes] = useState<Quiz[]>([])
+  const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null)
+  const [userAnswers, setUserAnswers] = useState<number[]>([])
+  const [score, setScore] = useState<number>(0)
+  const [loading, setLoading] = useState<boolean>(false)
+
+  useEffect(() => {
+    async function fetchQuizzes() {
+      setLoading(true)
+      try {
+        const res = await fetch("/api/quiz")
+        const data = await res.json()
+        setQuizzes(
+          data.reverse().map((q: any) => ({
+            _id: q._id,
+            id: q._id || q.id,
+            title: q.title,
+            description: q.description,
+            questions: q.questions || [],
+          }))
+        )
+      } catch {}
+      setLoading(false)
+    }
+    fetchQuizzes()
+  }, [])
+
 
   const handleStartQuiz = () => {
     setShowRegistration(false)
     setShowQuiz(true)
     setCurrentQuestion(0)
     setShowResults(false)
+    setUserAnswers([])
+    setScore(0)
   }
 
+
   const handleNextQuestion = () => {
-    if (currentQuestion < sampleQuestions.length - 1) {
+    if (!selectedQuiz) return
+    if (currentQuestion < selectedQuiz.questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1)
     } else {
+      let correct = 0
+      selectedQuiz.questions.forEach((q: any, i: number) => {
+        const correctIdx = q.options.findIndex((o: any) => o.isCorrect)
+        if (userAnswers[i] === correctIdx) correct++
+      })
+      setScore(correct)
       setShowResults(true)
       setShowQuiz(false)
     }
+  }
+
+  const handleSelectOption = (idx: number) => {
+    setUserAnswers((prev) => {
+      const arr = [...prev]
+      arr[currentQuestion] = idx
+      return arr
+    })
   }
 
   if (!quizEnabled) {
@@ -117,7 +146,8 @@ export default function QuizPage() {
             <div></div>
           </div>
 
-          {!showRegistration && !showQuiz && !showResults && (
+          {/* Quiz selection screen - Sample Quiz Info & Preview */}
+          {!showRegistration && !showQuiz && !showResults && !selectedQuiz && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
               {/* Quiz Info */}
               <motion.div
@@ -146,7 +176,13 @@ export default function QuizPage() {
                     </div>
                   </div>
                   <Button
-                    onClick={() => setShowRegistration(true)}
+                    onClick={() => {
+                      if (quizzes.length > 0) {
+                        setSelectedQuiz(quizzes[0])
+                        setShowRegistration(true)
+                      }
+                    }}
+                    disabled={loading || quizzes.length === 0}
                     className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:shadow-lg transition-shadow"
                   >
                     <Play className="h-4 w-4 mr-2" />
@@ -186,14 +222,14 @@ export default function QuizPage() {
                   </div>
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  This is just a preview. Register to take the full quiz!
+                  Click "Start Quiz" to begin the latest quiz!
                 </div>
               </motion.div>
             </div>
           )}
 
           {/* Registration Form */}
-          {showRegistration && (
+          {showRegistration && selectedQuiz && (
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -231,16 +267,17 @@ export default function QuizPage() {
           )}
 
           {/* Quiz Interface */}
-          {showQuiz && (
+          {showQuiz && selectedQuiz && (
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               className="max-w-2xl mx-auto"
             >
               <Card className="glass-card p-8">
+
                 <div className="flex justify-between items-center mb-6">
                   <h3 className="text-xl font-bold text-foreground">
-                    Question {currentQuestion + 1} of {sampleQuestions.length}
+                    Question {currentQuestion + 1} of {selectedQuiz.questions.length}
                   </h3>
                   <div className="text-sm text-muted-foreground">Time: 25:30</div>
                 </div>
@@ -249,22 +286,23 @@ export default function QuizPage() {
                   <div className="w-full bg-muted rounded-full h-2 mb-4">
                     <div
                       className="bg-gradient-to-r from-purple-600 to-blue-600 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${((currentQuestion + 1) / sampleQuestions.length) * 100}%` }}
+                      style={{ width: `${((currentQuestion + 1) / selectedQuiz.questions.length) * 100}%` }}
                     ></div>
                   </div>
                 </div>
 
                 <div className="mb-8">
-                  <h4 className="text-xl mb-6 text-foreground">{sampleQuestions[currentQuestion].question}</h4>
+                  <h4 className="text-xl mb-6 text-foreground">{selectedQuiz.questions[currentQuestion].text}</h4>
                   <div className="space-y-3">
-                    {sampleQuestions[currentQuestion].options.map((option, index) => (
+                    {selectedQuiz.questions[currentQuestion].options.map((option, index) => (
                       <motion.div
-                        key={index}
+                        key={option.id}
                         whileHover={{ scale: 1.02 }}
-                        className="p-4 rounded-lg cursor-pointer transition-colors bg-background/20 hover:bg-background/30 border border-transparent hover:border-purple-500/50"
+                        className={`p-4 rounded-lg cursor-pointer transition-colors bg-background/20 hover:bg-background/30 border ${userAnswers[currentQuestion] === index ? "border-purple-500/70 bg-purple-600/10" : "border-transparent"}`}
+                        onClick={() => handleSelectOption(index)}
                       >
                         <span className="text-foreground">
-                          {String.fromCharCode(65 + index)}. {option}
+                          {String.fromCharCode(65 + index)}. {option.text}
                         </span>
                       </motion.div>
                     ))}
@@ -272,11 +310,11 @@ export default function QuizPage() {
                 </div>
 
                 <div className="flex justify-between">
-                  <Button variant="outline" disabled={currentQuestion === 0}>
+                  <Button variant="outline" disabled={currentQuestion === 0} onClick={() => setCurrentQuestion((c) => Math.max(0, c - 1))}>
                     Previous
                   </Button>
-                  <Button onClick={handleNextQuestion} className="bg-purple-600 hover:bg-purple-700">
-                    {currentQuestion === sampleQuestions.length - 1 ? "Finish" : "Next"}
+                  <Button onClick={handleNextQuestion} className="bg-purple-600 hover:bg-purple-700" disabled={userAnswers[currentQuestion] == null}>
+                    {currentQuestion === selectedQuiz.questions.length - 1 ? "Finish" : "Next"}
                   </Button>
                 </div>
               </Card>
@@ -284,7 +322,7 @@ export default function QuizPage() {
           )}
 
           {/* Results */}
-          {showResults && (
+          {showResults && selectedQuiz && (
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -293,20 +331,21 @@ export default function QuizPage() {
               <Card className="glass-card p-8">
                 <Trophy className="h-16 w-16 text-yellow-500 mx-auto mb-6" />
                 <h3 className="text-3xl font-bold mb-4 text-foreground">Quiz Completed!</h3>
-                <div className="text-6xl font-bold gradient-text mb-4">85%</div>
-                <p className="text-xl text-muted-foreground mb-6">Great job! You scored 85% on this quiz.</p>
+
+                <div className="text-6xl font-bold gradient-text mb-4">{selectedQuiz.questions.length > 0 ? Math.round((score / selectedQuiz.questions.length) * 100) : 0}%</div>
+                <p className="text-xl text-muted-foreground mb-6">Great job! You scored {score} out of {selectedQuiz.questions.length}.</p>
 
                 <div className="grid grid-cols-3 gap-4 mb-8">
                   <div className="glass rounded-lg p-4">
-                    <div className="text-2xl font-bold text-green-400">2</div>
+                    <div className="text-2xl font-bold text-green-400">{score}</div>
                     <div className="text-sm text-muted-foreground">Correct</div>
                   </div>
                   <div className="glass rounded-lg p-4">
-                    <div className="text-2xl font-bold text-red-400">1</div>
+                    <div className="text-2xl font-bold text-red-400">{selectedQuiz.questions.length - score}</div>
                     <div className="text-sm text-muted-foreground">Incorrect</div>
                   </div>
                   <div className="glass rounded-lg p-4">
-                    <div className="text-2xl font-bold text-blue-400">3</div>
+                    <div className="text-2xl font-bold text-blue-400">{selectedQuiz.questions.length}</div>
                     <div className="text-sm text-muted-foreground">Total</div>
                   </div>
                 </div>
@@ -315,7 +354,9 @@ export default function QuizPage() {
                   <Button
                     onClick={() => {
                       setShowResults(false)
-                      setShowRegistration(true)
+                      setShowQuiz(false)
+                      setShowRegistration(false)
+                      setSelectedQuiz(null)
                     }}
                     className="flex-1 bg-purple-600 hover:bg-purple-700"
                   >
@@ -327,6 +368,7 @@ export default function QuizPage() {
                       setShowResults(false)
                       setShowQuiz(false)
                       setShowRegistration(false)
+                      setSelectedQuiz(null)
                     }}
                     className="flex-1"
                   >

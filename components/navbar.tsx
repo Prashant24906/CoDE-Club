@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { Menu, X, Code2, Moon, Sun } from "lucide-react"
+import { Menu, X, Moon, Sun } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 
 export function Navbar() {
@@ -46,13 +47,13 @@ export function Navbar() {
       animate={{ y: 0 }}
       className={`fixed top-4 z-50 transition-all duration-500 ${
         scrolled
-          ? "left-10 right-10 md:left-44 md:right-44 glass rounded-xl px-6 py-3" // Smaller when scrolled
-          : "left-8 right-8 md:left-36 md:right-36 glass-card rounded-xl px-6 py-3" // Smaller initial size
+          ? "left-10 right-10 md:left-44 md:right-44 glass rounded-xl px-6 py-3" 
+          : "left-8 right-8 md:left-36 md:right-36 glass-card rounded-xl px-6 py-3" 
       }`}
     >
       <div className="flex items-center justify-between">
         <Link href="/" className="flex items-center space-x-2">
-          <Code2 className="h-6 w-6" style={{ color: "var(--accent-blue)" }} />
+          <Image src="/codeclub1.png" alt="CoDE" width={52} height={52} className="nav-logo shadow-2xl" />
           <span className="text-lg font-bold gradient-text">CoDE</span>
         </Link>
 

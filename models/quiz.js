@@ -1,18 +1,21 @@
 import mongoose from "mongoose";
 
-const quizSchema = new mongoose.Schema(
-  {
-    title: { type: String, required: true },
-    description: String,
-    questions: [
-      {
-        question: String,
-        options: [String], // ["A", "B", "C", "D"]
-        answer: String, // "A"
-      },
-    ],
-  },
-  { timestamps: true }
-);
+const OptionSchema = new mongoose.Schema({
+  id: String,
+  text: String,
+  isCorrect: Boolean,
+});
 
-export default mongoose.models.Quiz || mongoose.model("Quiz", quizSchema);
+const QuestionSchema = new mongoose.Schema({
+  id: String,
+  text: String,
+  options: [OptionSchema],
+});
+
+const QuizSchema = new mongoose.Schema({
+  title: String,
+  description: String,
+  questions: [QuestionSchema],
+});
+
+export default mongoose.models.Quiz || mongoose.model("Quiz", QuizSchema);

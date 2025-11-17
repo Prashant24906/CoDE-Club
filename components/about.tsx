@@ -106,15 +106,29 @@ export function About() {
                 ))}
               </div>
             </div>
-            <div className="relative">
-              <div className="glass rounded-2xl p-6 float">
-                <div className="text-center">
-                  <div className="text-4xl font-bold gradient-text mb-2">500+</div>
-                  <div className="text-muted-foreground mb-4">Active Members</div>
-                  <div className="text-2xl font-bold gradient-text mb-2">50+</div>
-                  <div className="text-muted-foreground mb-4">Projects Completed</div>
-                  <div className="text-2xl font-bold gradient-text mb-2">25+</div>
-                  <div className="text-muted-foreground">Events Hosted</div>
+            <div className="relative ">
+              <div className="glass rounded-2xl p-6 float bg-black">
+                <div className="flex flex-col justify-center items-center gap-4">
+                  <div
+                    style={{
+                      width: "180px",
+                      height: "180px",
+                      borderRadius: "1.5rem",
+                      background: "rgba(0,0,0,0.3)",
+                      boxShadow: "0 8px 32px rgba(0,0,0,0.25)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <img
+                      src="/codeclub1.png"
+                      alt="Code Club Stats"
+                      style={{ width: "140px", height: "140px", objectFit: "contain" }}
+                      className="mx-auto"
+                    />
+                  </div>
+                  <div className="text-2xl font-bold ">CoDE Club</div>
                 </div>
               </div>
             </div>

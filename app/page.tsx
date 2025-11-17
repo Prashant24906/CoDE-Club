@@ -13,8 +13,8 @@ export default function Home() {
       <Navbar />
       <Hero />
       <About />
-      <Members /> {/* now client-side fetch with skeleton */}
-      <Events />  {/* also client-side fetch inside component */}
+      <Members /> 
+      <Events />  
       <Contact />
     </main>
   );

@@ -29,10 +29,9 @@ export function Members() {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   const { data: members, error } = useSWR<Member[]>("/api/members", fetcher, {
-    revalidateOnFocus: true, // updates if user comes back to page
+    revalidateOnFocus: true, 
   });
 
-  // Handle loading/error
   if (!members) return <p className="text-center mt-10">Loading members...</p>;
   if (error)
     return <p className="text-center mt-10">Failed to load members.</p>;
@@ -84,7 +83,8 @@ export function Members() {
         <motion.div
           ref={ref}
           initial={{ opacity: 0, y: 50 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+          // Always animate to visible on mount; keep initial for entrance animation
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
@@ -101,7 +101,7 @@ export function Members() {
         <div className="mb-20">
           <motion.h3
             initial={{ opacity: 0, y: 30 }}
-            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
             className="text-3xl font-bold text-center mb-12 gradient-text"
           >
@@ -110,16 +110,14 @@ export function Members() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-5xl mx-auto">
             {executiveTeam.map((member, index) => (
-              <motion.div
-                key={member._id}
-                initial={{ opacity: 0, y: 50 }}
-                animate={
-                  isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }
-                }
-                transition={{ duration: 0.8, delay: 0.3 + index * 0.1 }}
-                whileHover={{ scale: 1.05, y: -6 }}
-                className="glass-card rounded-2xl p-6 text-center group cursor-pointer relative overflow-hidden"
-              >
+                <motion.div
+                  key={member._id}
+                  initial={{ opacity: 0, y: 50 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.3 + index * 0.1 }}
+                  whileHover={{ scale: 1.05, y: -6 }}
+                  className="glass-card rounded-2xl p-6 text-center group cursor-pointer relative overflow-hidden"
+                >
                 <div className="relative mb-4">
                   <img
                     src={member.image || "/placeholder.svg"}
@@ -141,13 +139,13 @@ export function Members() {
         {/* Departments */}
         <div className="space-y-16">
           {departments.map((dept, deptIndex) => (
-            <motion.div
-              key={dept.name}
-              initial={{ opacity: 0, y: 30 }}
-              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-              transition={{ duration: 0.8, delay: 0.6 + deptIndex * 0.2 }}
-              className="relative"
-            >
+              <motion.div
+                key={dept.name}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.6 + deptIndex * 0.2 }}
+                className="relative"
+              >
               <div
                 className={`glass-card rounded-3xl p-5 md:p-6 border-2 ${getColorClasses(
                   dept.color
@@ -169,9 +167,7 @@ export function Members() {
                   {dept.lead && (
                     <motion.div
                       initial={{ opacity: 0, x: -30 }}
-                      animate={
-                        isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 }
-                      }
+                      animate={{ opacity: 1, x: 0 }}
                       transition={{
                         duration: 0.6,
                         delay: 0.1 + deptIndex * 0.1,
@@ -196,9 +192,7 @@ export function Members() {
 
                   <motion.div
                     initial={{ opacity: 0, x: 30 }}
-                    animate={
-                      isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 30 }
-                    }
+                    animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.6, delay: 0.2 + deptIndex * 0.1 }}
                     className="md:basis-[68%] lg:basis-[70%]"
                   >
@@ -207,11 +201,7 @@ export function Members() {
                         <motion.div
                           key={member._id}
                           initial={{ opacity: 0, scale: 0.9 }}
-                          animate={
-                            isInView
-                              ? { opacity: 1, scale: 1 }
-                              : { opacity: 0, scale: 0.9 }
-                          }
+                          animate={{ opacity: 1, scale: 1 }}
                           transition={{ duration: 0.4 }}
                           whileHover={{ scale: 1.05, y: -4 }}
                           className="glass-card rounded-xl p-4 text-center min-h-[170px] flex flex-col justify-center"

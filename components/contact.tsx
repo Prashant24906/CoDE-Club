@@ -83,8 +83,7 @@ export function Contact() {
             </div>
           </motion.div>
         </div>
-
-        {/* Footer-style Social Links Card */}
+         {/* Footer */}
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}

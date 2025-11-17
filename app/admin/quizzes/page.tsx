@@ -10,26 +10,33 @@ type Option = { id: string; text: string; isCorrect: boolean }
 type Question = { id: string; text: string; options: Option[] }
 type Quiz = { id: string; title: string; description?: string; questions: Question[] }
 
-const STORAGE_KEY = "cc_quizzes"
 
-export default function QuizzesAdminPage() {
+
+
+export default function AdminQuizzesPage() {
   const [quizzes, setQuizzes] = useState<Quiz[]>([])
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [questions, setQuestions] = useState<Question[]>([])
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY)
-      if (raw) setQuizzes(JSON.parse(raw))
-    } catch {}
+    async function fetchQuizzes() {
+      setLoading(true)
+      try {
+        const res = await fetch("/api/quiz")
+        const data = await res.json()
+        setQuizzes(data.map((q: any) => ({
+          id: q._id || q.id,
+          title: q.title,
+          description: q.description,
+          questions: q.questions || [],
+        })))
+      } catch {}
+      setLoading(false)
+    }
+    fetchQuizzes()
   }, [])
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(quizzes))
-    } catch {}
-  }, [quizzes])
 
   const canSave = useMemo(
     () =>
@@ -83,18 +90,40 @@ export default function QuizzesAdminPage() {
     )
   }
 
-  function saveQuiz() {
+  async function saveQuiz() {
     if (!canSave) return
-    const id = typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : String(Date.now())
-    const newQuiz: Quiz = { id, title: title.trim(), description: description.trim() || undefined, questions }
-    setQuizzes((prev) => [newQuiz, ...prev])
-    setTitle("")
-    setDescription("")
-    setQuestions([])
+    setLoading(true)
+    try {
+      const res = await fetch("/api/quiz", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: title.trim(), description: description.trim() || undefined, questions }),
+      })
+      const created = await res.json()
+      setQuizzes((prev) => [{
+        id: created._id || created.id,
+        title: created.title,
+        description: created.description,
+        questions: created.questions || [],
+      }, ...prev])
+      setTitle("")
+      setDescription("")
+      setQuestions([])
+    } catch {}
+    setLoading(false)
   }
 
-  function deleteQuiz(id: string) {
-    setQuizzes((prev) => prev.filter((q) => q.id !== id))
+  async function deleteQuiz(id: string) {
+    setLoading(true)
+    try {
+      await fetch("/api/quiz", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      })
+      setQuizzes((prev) => prev.filter((q) => q.id !== id))
+    } catch {}
+    setLoading(false)
   }
 
   return (
@@ -203,7 +232,9 @@ export default function QuizzesAdminPage() {
 
       <Card className="glass-card rounded-xl p-6">
         <h2 className="mb-4 text-lg font-semibold">Saved Quizzes</h2>
-        {quizzes.length === 0 ? (
+        {loading ? (
+          <p className="text-sm text-muted-foreground">Loading...</p>
+        ) : quizzes.length === 0 ? (
           <p className="text-sm text-muted-foreground">No quizzes yet.</p>
         ) : (
           <ul className="divide-y divide-border">
@@ -224,3 +255,4 @@ export default function QuizzesAdminPage() {
     </main>
   )
 }
+

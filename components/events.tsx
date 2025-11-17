@@ -5,7 +5,6 @@ import { useInView } from "framer-motion"
 import { useRef, useState, useEffect } from "react"
 import { Calendar, MapPin, Clock } from "lucide-react"
 
-// Define the Event type
 type Event = {
   _id: string
   image?: string
@@ -31,7 +30,6 @@ export function Events() {
         setEventsEnabled(parsed.eventsEnabled ?? true)
       }
     } catch {
-      // if parsing fails, default remains true
     }
   }, [])
 

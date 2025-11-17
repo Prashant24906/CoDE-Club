@@ -16,7 +16,6 @@ import { EventType } from "@/lib/types"
 export default function EventsAdminPage() {
   const [events, setEvents] = useState<EventType[]>([])
 
-  // Add form state
   const [aTitle, setATitle] = useState("")
   const [aDate, setADate] = useState("")
   const [aLocation, setALocation] = useState("")
@@ -24,7 +23,6 @@ export default function EventsAdminPage() {
   const [aGoogleForm, setAGoogleForm] = useState("")
   const [aImage, setAImage] = useState<string | undefined>(undefined)
 
-  // Edit modal state
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editOpen, setEditOpen] = useState(false)
   const [eTitle, setETitle] = useState("")
@@ -34,14 +32,12 @@ export default function EventsAdminPage() {
   const [eGoogleForm, setEGoogleForm] = useState("")
   const [eImage, setEImage] = useState<string | undefined>(undefined)
 
-  // Cropper state for add/edit
   const [addCropOpen, setAddCropOpen] = useState(false)
   const [addCropSrc, setAddCropSrc] = useState<string | null>(null)
   const [editCropOpen, setEditCropOpen] = useState(false)
   const [editCropSrc, setEditCropSrc] = useState<string | null>(null)
 
   useEffect(() => {
-    // Fetch events from the database
     fetch("/api/events")
       .then((res) => res.json())
       .then((data: EventType[]) => setEvents(data))
@@ -138,7 +134,6 @@ export default function EventsAdminPage() {
     setEImage(undefined)
   }
 
-  // Open cropper when adding image
   const onAddDrop = (files: File[]) => {
     const file = files?.[0]
     if (!file) return
@@ -153,7 +148,6 @@ export default function EventsAdminPage() {
     reader.readAsDataURL(file)
   }
 
-  // Open cropper when editing image
   const onEditDrop = (files: File[]) => {
     const file = files?.[0]
     if (!file) return
@@ -187,7 +181,6 @@ export default function EventsAdminPage() {
     accept: { "image/*": [] },
   })
 
-  // Local date helpers
   function formatYmd(date: Date) {
     const y = date.getFullYear()
     const m = String(date.getMonth() + 1).padStart(2, "0")
@@ -198,39 +191,32 @@ export default function EventsAdminPage() {
     if (!s) return null
     const [y, m, d] = s.split("-").map((v) => Number(v))
     if (!y || !m || !d) return null
-    // Local midnight for stable comparisons without timezone shifts
     return new Date(y, m - 1, d)
   }
 
-  // Derived Date objects for calendar selection
   const addSelectedDate = useMemo(() => (aDate ? (parseYmd(aDate) ?? undefined) : undefined), [aDate])
   const editSelectedDate = useMemo(() => (eDate ? (parseYmd(eDate) ?? undefined) : undefined), [eDate])
 
-  // Determines if the "Add Event" form can be submitted
   const addCanSave = useMemo(() => {
     return aTitle.trim() !== "" && aDate.trim() !== "" && aDescription.trim() !== ""
   }, [aTitle, aDate, aDescription])
 
-  // Determines if the "Edit Event" form can be submitted
   const editCanSave = useMemo(() => {
     return eTitle.trim() !== "" && eDate.trim() !== "" && eDescription.trim() !== ""
   }, [eTitle, eDate, eDescription])
 
-  // Checks if the selected date for adding an event is in the future
   const addIsFuture = useMemo(() => {
     const today = new Date()
     const selectedDate = parseYmd(aDate)
     return selectedDate ? selectedDate > today : false
   }, [aDate])
 
-  // Checks if the selected date for editing an event is in the future
   const editIsFuture = useMemo(() => {
     const today = new Date()
     const selectedDate = parseYmd(eDate)
     return selectedDate ? selectedDate > today : false
   }, [eDate])
 
-  // Opens the "Edit Event" modal and populates it with the selected event's data
   const openEdit = (event: EventType) => {
     setEditingId(event._id || null)
     setETitle(event.title)
@@ -299,11 +285,8 @@ export default function EventsAdminPage() {
         )}
       </Card>
 
-      {/* Persistent Add Event section */}
       <Card className="glass-card rounded-xl p-6">
         <h2 className="mb-4 text-lg font-semibold">Add New Event</h2>
-
-        {/* Drag and drop upload area with crop controls */}
         <div
           {...getAddRootProps()}
           className={`mb-4 rounded-lg border border-dashed p-6 text-center transition ${
@@ -386,7 +369,6 @@ export default function EventsAdminPage() {
           )}
         </div>
 
-        {/* Existing add form fields (Title, Date with Popover+Calendar, Location, Description, optional Google Form, buttons) */}
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="grid gap-2">
             <label htmlFor="a-title" className="text-sm font-medium">
@@ -460,7 +442,6 @@ export default function EventsAdminPage() {
             />
           </div>
 
-          {/* Show Google Form Link only for future dates */}
           {addIsFuture && (
             <div className="grid gap-2 sm:col-span-2">
               <label htmlFor="a-gform" className="text-sm font-medium">
@@ -486,8 +467,6 @@ export default function EventsAdminPage() {
           </div>
         </div>
       </Card>
-
-      {/* Crop dialogs for Add & Edit */}
       <ImageCropperDialog
         open={addCropOpen}
         onOpenChange={setAddCropOpen}
@@ -524,7 +503,7 @@ export default function EventsAdminPage() {
               <div className="flex flex-col items-center gap-3">
                 <div className="relative w-full rounded-md overflow-hidden" style={{ paddingTop: "56.25%" }}>
                   <img
-                    src={eImage || "/placeholder.svg"} // Fallback to placeholder
+                    src={eImage || "/placeholder.svg"} 
                     alt="Selected event"
                     className="absolute inset-0 h-full w-full object-cover"
                   />
@@ -633,7 +612,7 @@ export default function EventsAdminPage() {
                       mode="single"
                       selected={editSelectedDate}
                       onSelect={(d) => {
-                        if (d) setEDate(formatYmd(d) ?? ""); // Ensure a string is always set
+                        if (d) setEDate(formatYmd(d) ?? "");
                       }}
                       defaultMonth={editSelectedDate ?? new Date()}
                       initialFocus
