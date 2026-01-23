@@ -1,37 +1,38 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { motion } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { Menu, X, Moon, Sun } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Menu, X, Moon, Sun } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 
 export function Navbar() {
-  const [isOpen, setIsOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
-  const [isDark, setIsDark] = useState(true)
-
+  const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [isDark, setIsDark] = useState(true);
+  const [isHovered, setIsHovered] = useState(false);
+  const scale = isHovered ? 1.2 : 1;
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 50)
-    }
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+      setScrolled(window.scrollY > 50);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
-    const theme = localStorage.getItem("theme") || "dark"
-    setIsDark(theme === "dark")
-    document.documentElement.classList.toggle("dark", theme === "dark")
-  }, [])
+    const theme = localStorage.getItem("theme") || "dark";
+    setIsDark(theme === "dark");
+    document.documentElement.classList.toggle("dark", theme === "dark");
+  }, []);
 
   const toggleTheme = () => {
-    const newTheme = isDark ? "light" : "dark"
-    setIsDark(!isDark)
-    localStorage.setItem("theme", newTheme)
-    document.documentElement.classList.toggle("dark", newTheme === "dark")
-  }
+    const newTheme = isDark ? "light" : "dark";
+    setIsDark(!isDark);
+    localStorage.setItem("theme", newTheme);
+    document.documentElement.classList.toggle("dark", newTheme === "dark");
+  };
 
   const navItems = [
     { name: "About", href: "#about" },
@@ -39,21 +40,23 @@ export function Navbar() {
     { name: "Events", href: "#events" },
     { name: "Quiz", href: "/quiz" },
     { name: "Contact", href: "#contact" },
-  ]
+  ];
 
   return (
     <motion.nav
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className={`fixed top-4 z-50 transition-all duration-500 ${
-        scrolled
-          ? "left-10 right-10 md:left-44 md:right-44 glass rounded-xl px-6 py-3" 
-          : "left-8 right-8 md:left-36 md:right-36 glass-card rounded-xl px-6 py-3" 
-      }`}
+      className={` fixed top-4 z-50 transition-all duration-500 left-10 right-10 md:left-44 md:right-44 ${isDark ? "bg-blue-50" : "bg-blue-900 "}rounded-xl px-6 py-3 `}
     >
-      <div className="flex items-center justify-between">
+      <div className="flex items- justify-between ">
         <Link href="/" className="flex items-center space-x-2">
-          <Image src="/codeclub1.png" alt="CoDE" width={52} height={52} className="nav-logo shadow-2xl" />
+          <Image
+            src="/codeclub1.png"
+            alt="CoDE"
+            width={52}
+            height={52}
+            className="nav-logo shadow-2xl"
+          />
           <span className="text-lg font-bold gradient-text">CoDE</span>
         </Link>
 
@@ -76,14 +79,20 @@ export function Navbar() {
             onClick={toggleTheme}
             className="text-muted-foreground hover:text-foreground"
           >
-            {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            {isDark ? (
+              <Sun className="h-4 w-4" />
+            ) : (
+              <Moon className="h-4 w-4" />
+            )}
           </Button>
 
           <Link href="/admin">
             <Button
               variant="outline"
               size="sm"
-              className="border-primary/50 text-primary hover:bg-primary/10 bg-transparent"
+              className={`border-primary/50 text-primary  ${isHovered?"h-90% w-4%":"h-7 w-15"}`}
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
             >
               Admin
             </Button>
@@ -91,7 +100,12 @@ export function Navbar() {
         </div>
 
         {/* Mobile Menu Button */}
-        <Button variant="ghost" size="sm" className="md:hidden" onClick={() => setIsOpen(!isOpen)}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="md:hidden"
+          onClick={() => setIsOpen(!isOpen)}
+        >
           {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </Button>
       </div>
@@ -120,11 +134,19 @@ export function Navbar() {
               onClick={toggleTheme}
               className="text-muted-foreground hover:text-foreground"
             >
-              {isDark ? <Sun className="h-4 w-4 mr-2" /> : <Moon className="h-4 w-4 mr-2" />}
+              {isDark ? (
+                <Sun className="h-4 w-4 mr-2" />
+              ) : (
+                <Moon className="h-4 w-4 mr-2" />
+              )}
               {isDark ? "Light" : "Dark"}
             </Button>
             <Link href="/admin">
-              <Button variant="outline" size="sm" onClick={() => setIsOpen(false)}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsOpen(false)}
+              >
                 Admin
               </Button>
             </Link>
@@ -132,5 +154,5 @@ export function Navbar() {
         </motion.div>
       )}
     </motion.nav>
-  )
+  );
 }
