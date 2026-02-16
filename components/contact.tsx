@@ -2,18 +2,57 @@
 
 import { motion } from "framer-motion"
 import { useInView } from "framer-motion"
-import { useRef } from "react"
+import { useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Mail, Phone, MapPin, Github, Twitter, Linkedin, Instagram, Send } from "lucide-react"
+import { Linkedin, Instagram, Send } from "lucide-react"
+import { toast } from "sonner"
 
 export function Contact() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-100px" })
+  const [isLoading, setIsLoading] = useState(false)
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    subject: "",
+    message: "",
+  })
 
   const socialLinks = [
     { icon: Linkedin, href: "https://www.linkedin.com/company/codeclubaiml/", label: "LinkedIn", color: "hover:text-blue-500" },
     { icon: Instagram, href: "https://www.instagram.com/codeclub_pesmcoe?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==", label: "Instagram", color: "hover:text-pink-400" },
   ]
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+  }
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setIsLoading(true)
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      })
+
+      if (response.ok) {
+        toast.success("Message sent successfully!")
+        setFormData({ firstName: "", lastName: "", email: "", subject: "", message: "" })
+      } else {
+        toast.error("Failed to send message. Please try again.")
+      }
+    } catch (error) {
+      console.error("Form submission error:", error)
+      toast.error("An error occurred. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <section id="contact" className="py-20 px-4">
@@ -42,41 +81,63 @@ export function Contact() {
           >
             <div className="glass-card rounded-2xl p-8">
               <h3 className="text-2xl font-bold mb-6">Send us a Message</h3>
-              <form className="space-y-6">
+              <form className="space-y-6" onSubmit={handleSubmit}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <input
                     type="text"
+                    name="firstName"
                     placeholder="First Name"
+                    value={formData.firstName}
+                    onChange={handleChange}
+                    required
                     className="glass rounded-lg px-4 py-3 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent-blue transition-all"
                   />
                   <input
                     type="text"
+                    name="lastName"
                     placeholder="Last Name"
+                    value={formData.lastName}
+                    onChange={handleChange}
+                    required
                     className="glass rounded-lg px-4 py-3 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent-blue transition-all"
                   />
                 </div>
                 <input
                   type="email"
+                  name="email"
                   placeholder="Email Address"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
                   className="w-full glass rounded-lg px-4 py-3 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent-blue transition-all"
                 />
                 <input
                   type="text"
+                  name="subject"
                   placeholder="Subject"
+                  value={formData.subject}
+                  onChange={handleChange}
+                  required
                   className="w-full glass rounded-lg px-4 py-3 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent-blue transition-all"
                 />
                 <textarea
+                  name="message"
                   placeholder="Your Message"
                   rows={5}
+                  value={formData.message}
+                  onChange={handleChange}
+                  required
                   className="w-full glass rounded-lg px-4 py-3 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent-blue transition-all resize-none"
                 />
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                   <Button
+                    type="submit"
+                    disabled={isLoading}
                     className="w-full py-3"
                     style={{ background: `linear-gradient(135deg, var(--accent-blue), var(--accent-indigo))` }}
                   >
                     <Send className="h-4 w-4 mr-2" />
-                    Send Message
+                    {isLoading ? "Sending..." : "Send Message"}
                   </Button>
                 </motion.div>
               </form>

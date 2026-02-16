@@ -49,7 +49,8 @@ export function AdminNavbar() {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       className={`fixed top-4 z-50 transition-all duration-500 ${
-        scrolled ? "left-10 right-10 md:left-44 md:right-44 glass rounded-xl px-6 py-3" : "left-8 right-8 md:left-36 md:right-36 glass-card rounded-xl px-6 py-3"
+        scrolled ? "left-10 right-10 md:left-44 md:right-44 bg-white dark:bg-gray-900 rounded-xl px-6 py-3"   
+        : "left-8 right-8 md:left-36 md:right-36 bg-white dark:bg-gray-900 rounded-xl px-6 py-3"
       }`}
     >
       <div className="flex items-center justify-between">

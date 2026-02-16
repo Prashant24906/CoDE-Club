@@ -276,6 +276,7 @@ export default function MembersAdminPage() {
                   <div className="flex items-center gap-3">
                     <Image
                       src={m.image}
+                      loading="lazy"
                       alt={`${m.name} avatar`}
                       width={64}
                       height={64}
