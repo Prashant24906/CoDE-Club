@@ -138,7 +138,7 @@ export function Events() {
           </motion.h3>
 
           {upcomingEvents.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 justify-items-center">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 justify-items-center">
               {upcomingEvents.map((event, index) => (
                 <motion.div
                   key={event._id}
@@ -146,7 +146,7 @@ export function Events() {
                   animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
                   transition={{ duration: 0.8, delay: 0.4 + index * 0.1 }}
                   whileHover={{ y: -5 }}
-                  className="glass-card rounded-2xl p-4 group cursor-pointer w-full max-w-[320px] border border-white/10"
+                  className="glass-card rounded-2xl p-3 sm:p-4 group cursor-pointer w-full max-w-[320px] border border-white/10"
                   onClick={() => setSelectedEvent(event)}
                 >
                   <div className="relative bg-black/20 rounded-xl overflow-hidden border border-white/10 mb-4">
@@ -220,7 +220,7 @@ export function Events() {
           </motion.h3>
 
           {pastEvents.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 justify-items-center">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 justify-items-center">
               {pastEvents.map((event, index) => (
                 <motion.div
                   key={event._id}
@@ -228,7 +228,7 @@ export function Events() {
                   animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
                   transition={{ duration: 0.8, delay: 0.7 + index * 0.05 }}
                   whileHover={{ y: -5 }}
-                  className="glass-card rounded-2xl p-4 group cursor-pointer opacity-80 hover:opacity-100 transition-opacity w-full max-w-[300px] border border-white/10"
+                  className="glass-card rounded-2xl p-3 sm:p-4 group cursor-pointer opacity-80 hover:opacity-100 transition-opacity w-full max-w-[300px] border border-white/10"
                   onClick={() => setSelectedEvent(event)}
                 >
                   <div className="relative bg-black/20 rounded-xl overflow-hidden border border-white/10 mb-4">
@@ -265,7 +265,7 @@ export function Events() {
       </div>
 
       <Dialog open={!!selectedEvent} onOpenChange={(open) => !open && setSelectedEvent(null)}>
-        <DialogContent className="rounded-2xl sm:max-w-4xl p-4 md:p-6 bg-background border border-border shadow-2xl">
+        <DialogContent className="rounded-2xl w-[calc(100%-1rem)] sm:max-w-4xl p-4 md:p-6 bg-background border border-border shadow-2xl max-h-[88vh] overflow-y-auto">
           {selectedEvent && (
             <>
               <div className="grid grid-cols-1 md:grid-cols-[44%_56%] gap-5 md:gap-6 items-start">
@@ -275,7 +275,7 @@ export function Events() {
                     alt={selectedEvent.title}
                     className={`w-full object-contain p-2 ${
                       eventAspectById[selectedEvent._id] === "square" ? "aspect-square" : "aspect-[3/4]"
-                    }`}
+                    } max-h-[42vh]`}
                   />
                 </div>
 

@@ -78,13 +78,13 @@ export function Motivation() {
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
             transition={{ duration: 0.6 }}
             whileHover={{ y: -6 }}
-            className="glass-card rounded-2xl p-6 border border-cyan-400/30 w-full min-h-[320px]"
+            className="glass-card rounded-2xl p-4 sm:p-6 border border-cyan-400/30 w-full min-h-[260px] sm:min-h-[320px] max-w-[520px] sm:max-w-none mx-auto"
           >
             <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-6 items-center h-full">
               <img
                 src={hod.image}
                 alt={hod.name}
-                className="w-full md:w-[240px] aspect-square rounded-xl object-cover"
+                className="w-[160px] h-[160px] sm:w-full sm:h-auto md:w-[240px] aspect-square rounded-xl object-cover mx-auto"
               />
               <div>
                 <div className="inline-flex rounded-full px-3 py-1 text-xs font-semibold bg-cyan-500/15 text-cyan-300 mb-3">
@@ -103,7 +103,7 @@ export function Motivation() {
           </motion.div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 max-w-5xl mx-auto justify-items-center">
+        <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-5 max-w-5xl mx-auto justify-items-center">
           {teachers.map((teacher, index) => (
             <motion.div
               key={teacher.name}
@@ -111,7 +111,7 @@ export function Motivation() {
               animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
               transition={{ duration: 0.6, delay: 0.1 + index * 0.1 }}
               whileHover={{ y: -6 }}
-              className="glass-card rounded-2xl p-4 border border-white/10 h-full w-full max-w-[240px]"
+              className="glass-card rounded-2xl p-3 sm:p-4 border border-white/10 h-full w-full max-w-[240px]"
             >
               <img
                 src={teacher.image}

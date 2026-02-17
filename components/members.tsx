@@ -133,7 +133,7 @@ export function Members() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.3 + index * 0.1 }}
                   whileHover={{ y: -6 }}
-                  className="glass-card rounded-2xl p-5 border border-white/10 h-full"
+                  className="glass-card rounded-2xl p-4 sm:p-5 border border-white/10 h-full w-full max-w-[260px] sm:max-w-none mx-auto"
                 >
                 <div className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-blue-500/10 text-blue-600 dark:text-blue-300 mb-3">
                   Executive Lead
@@ -143,7 +143,7 @@ export function Members() {
                     src={member.image || "/placeholder.svg"}
                     loading="lazy"
                     alt={member.name}
-                    className="w-full aspect-square rounded-xl object-cover"
+                    className="w-[150px] h-[150px] sm:w-full sm:h-auto aspect-square rounded-xl object-cover mx-auto"
                   />
                 </div>
                 <h4 className="text-lg font-semibold mb-1 text-foreground">
@@ -202,14 +202,14 @@ export function Members() {
                     >
                       <motion.div
                         whileHover={{ y: -4 }}
-                        className={`glass-card rounded-2xl p-5 border ${getColorClasses(dept.color).border}`}
+                        className={`glass-card rounded-2xl p-4 sm:p-5 border ${getColorClasses(dept.color).border} max-w-[380px] sm:max-w-none mx-auto`}
                       >
                         <div className="grid grid-cols-1 sm:grid-cols-[170px_1fr] gap-4 items-center">
                           <img
                             src={dept.lead.image || "/placeholder.svg"}
                             loading="lazy"
                             alt={dept.lead.name}
-                            className="w-full sm:w-[170px] aspect-square rounded-xl object-cover"
+                            className="w-[130px] h-[130px] sm:w-[170px] sm:h-[170px] aspect-square rounded-xl object-cover mx-auto"
                           />
                           <div className="min-w-0">
                             <p
@@ -240,7 +240,7 @@ export function Members() {
                     transition={{ duration: 0.5, delay: 0.2 + deptIndex * 0.1 }}
                   >
                     {dept.members.length > 0 ? (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 justify-items-center">
+                      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 justify-items-center">
                         {dept.members.map((member) => (
                           <motion.div
                             key={member._id}
@@ -248,14 +248,14 @@ export function Members() {
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ duration: 0.35 }}
                             whileHover={{ y: -4 }}
-                            className="glass-card rounded-2xl p-3 border border-white/10 h-full w-full "
+                            className="glass-card rounded-2xl p-2.5 sm:p-3 border border-white/10 h-full w-full"
                           >
                             <div className="mb-3 flex justify-center">
                               <img
                                 src={member.image || "/placeholder.svg"}
                                 loading="lazy"
                                 alt={member.name}
-                                className="w-[170px] h-[170px] rounded-xl object-cover"
+                                className="w-[120px] h-[120px] sm:w-[170px] sm:h-[170px] rounded-xl object-cover"
                               />
                             </div>
                             <h5 className="text-sm font-semibold text-foreground truncate mb-1 text-center">
