@@ -73,7 +73,9 @@ export default function ImageCropperDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="glass-card rounded-xl">
         <DialogHeader>
-          <DialogTitle>Crop Image ({aspect === 1 ? "1:1" : aspect === 16 / 9 ? "16:9" : "Custom"})</DialogTitle>
+          <DialogTitle>
+            Crop Image ({aspect === 1 ? "1:1" : aspect === 3 / 4 ? "3:4" : aspect === 16 / 9 ? "16:9" : "Custom"})
+          </DialogTitle>
         </DialogHeader>
 
         <div className="grid gap-4">

@@ -1,8 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useInView } from "framer-motion";
-import { useRef } from "react";
 import useSWR from "swr";
 import { Users } from "lucide-react";
 
@@ -25,9 +23,6 @@ type Department = {
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export function Members() {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
-
   const { data: members, error } = useSWR<Member[]>("/api/members", fetcher, {
     revalidateOnFocus: true, 
   });
@@ -63,16 +58,40 @@ export function Members() {
   );
 
   const getColorClasses = (color: string) => {
-    const colors: Record<string, string> = {
-      blue: "border-blue-500/30 bg-blue-500/5 text-blue-600 dark:text-blue-400",
-      emerald:
-        "border-emerald-500/30 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400",
-      indigo:
-        "border-indigo-500/30 bg-indigo-500/5 text-indigo-600 dark:text-indigo-400",
-      purple:
-        "border-purple-500/30 bg-purple-500/5 text-purple-600 dark:text-purple-400",
-      orange:
-        "border-orange-500/30 bg-orange-500/5 text-orange-600 dark:text-orange-400",
+    const colors: Record<
+      string,
+      { stripe: string; badge: string; accent: string; border: string }
+    > = {
+      blue: {
+        stripe: "from-blue-500/80 to-cyan-500/80",
+        badge: "bg-blue-500/10 text-blue-600 dark:text-blue-300",
+        accent: "text-blue-600 dark:text-blue-300",
+        border: "border-blue-500/20",
+      },
+      emerald: {
+        stripe: "from-emerald-500/80 to-teal-500/80",
+        badge: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-300",
+        accent: "text-emerald-600 dark:text-emerald-300",
+        border: "border-emerald-500/20",
+      },
+      indigo: {
+        stripe: "from-indigo-500/80 to-sky-500/80",
+        badge: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-300",
+        accent: "text-indigo-600 dark:text-indigo-300",
+        border: "border-indigo-500/20",
+      },
+      purple: {
+        stripe: "from-fuchsia-500/80 to-purple-500/80",
+        badge: "bg-purple-500/10 text-purple-600 dark:text-purple-300",
+        accent: "text-purple-600 dark:text-purple-300",
+        border: "border-purple-500/20",
+      },
+      orange: {
+        stripe: "from-orange-500/80 to-amber-500/80",
+        badge: "bg-orange-500/10 text-orange-600 dark:text-orange-300",
+        accent: "text-orange-600 dark:text-orange-300",
+        border: "border-orange-500/20",
+      },
     };
     return colors[color] || colors.blue;
   };
@@ -81,9 +100,7 @@ export function Members() {
     <section id="members" className="py-20 px-4">
       <div className="max-w-7xl mx-auto">
         <motion.div
-          ref={ref}
           initial={{ opacity: 0, y: 50 }}
-          // Always animate to visible on mount; keep initial for entrance animation
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
@@ -108,27 +125,31 @@ export function Members() {
             Executive Leadership
           </motion.h3>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 max-w-6xl mx-auto">
             {executiveTeam.map((member, index) => (
                 <motion.div
                   key={member._id}
-                  initial={{ opacity: 0, y: 50 }}
+                  initial={{ opacity: 0, y: 40 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.3 + index * 0.1 }}
-                  whileHover={{ scale: 1.05, y: -6 }}
-                  className="glass-card rounded-2xl p-6 text-center group cursor-pointer relative overflow-hidden"
+                  transition={{ duration: 0.6, delay: 0.3 + index * 0.1 }}
+                  whileHover={{ y: -6 }}
+                  className="glass-card rounded-2xl p-5 border border-white/10 h-full"
                 >
+                <div className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-blue-500/10 text-blue-600 dark:text-blue-300 mb-3">
+                  Executive Lead
+                </div>
                 <div className="relative mb-4">
                   <img
                     src={member.image || "/placeholder.svg"}
+                    loading="lazy"
                     alt={member.name}
-                    className="w-28 h-28 rounded-full mx-auto object-cover group-hover:scale-110 transition-transform duration-300"
+                    className="w-full aspect-square rounded-xl object-cover"
                   />
                 </div>
-                <h4 className="text-xl font-semibold mb-1 text-foreground">
+                <h4 className="text-lg font-semibold mb-1 text-foreground">
                   {member.name}
                 </h4>
-                <p className="text-blue-500 text-sm font-medium">
+                <p className="text-sm text-muted-foreground">
                   {member.role}
                 </p>
               </motion.div>
@@ -137,7 +158,7 @@ export function Members() {
         </div>
 
         {/* Departments */}
-        <div className="space-y-16">
+        <div className="space-y-16 max-w-6xl mx-auto">
           {departments.map((dept, deptIndex) => (
               <motion.div
                 key={dept.name}
@@ -146,78 +167,114 @@ export function Members() {
                 transition={{ duration: 0.8, delay: 0.6 + deptIndex * 0.2 }}
                 className="relative"
               >
-              <div
-                className={`glass-card rounded-3xl p-5 md:p-6 border-2 ${getColorClasses(
-                  dept.color
-                )} scale-95`}
-              >
-                <div className="mb-6 text-center">
-                  <h3 className="text-xl font-bold mb-1 text-foreground">
-                    {dept.name}
-                  </h3>
-                  <div className="flex items-center justify-center space-x-2 text-muted-foreground text-sm">
-                    <Users className="h-4 w-4" />
-                    <span>
-                      {dept.members.length + (dept.lead ? 1 : 0)} Members
-                    </span>
+              <div className={`glass-card rounded-3xl border overflow-hidden ${getColorClasses(dept.color).border}`}>
+                <div
+                  className={`h-1 w-full bg-gradient-to-r ${getColorClasses(
+                    dept.color
+                  ).stripe}`}
+                />
+                <div className="p-5 md:p-7">
+                  <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <h3 className="text-2xl font-bold text-foreground">
+                      {dept.name}
+                    </h3>
+                    <div
+                      className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-medium ${getColorClasses(
+                        dept.color
+                      ).badge}`}
+                    >
+                      <Users className="h-4 w-4" />
+                      <span>
+                        {dept.members.length + (dept.lead ? 1 : 0)} Members
+                      </span>
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex flex-col md:flex-row md:items-start gap-5 md:gap-6">
                   {dept.lead && (
                     <motion.div
-                      initial={{ opacity: 0, x: -30 }}
-                      animate={{ opacity: 1, x: 0 }}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
                       transition={{
-                        duration: 0.6,
+                        duration: 0.5,
                         delay: 0.1 + deptIndex * 0.1,
                       }}
-                      className="md:basis-[32%] lg:basis-[30%]"
+                      className="mb-6"
                     >
-                      <div className="glass-card rounded-2xl p-4 border-2 border-current aspect-square flex flex-col items-center justify-center scale-90 mx-auto">
-                        <img
-                          src={dept.lead.image || "/placeholder.svg"}
-                          alt={dept.lead.name}
-                          className="w-36 h-36 rounded-xl object-cover mb-2"
-                        />
-                        <h4 className="text-base font-semibold text-foreground">
-                          {dept.lead.name}
-                        </h4>
-                        <p className="text-sm font-medium text-current">
-                          {dept.lead.role}
-                        </p>
-                      </div>
+                      <motion.div
+                        whileHover={{ y: -4 }}
+                        className={`glass-card rounded-2xl p-5 border ${getColorClasses(dept.color).border}`}
+                      >
+                        <div className="grid grid-cols-1 sm:grid-cols-[170px_1fr] gap-4 items-center">
+                          <img
+                            src={dept.lead.image || "/placeholder.svg"}
+                            loading="lazy"
+                            alt={dept.lead.name}
+                            className="w-full sm:w-[170px] aspect-square rounded-xl object-cover"
+                          />
+                          <div className="min-w-0">
+                            <p
+                              className={`inline-flex rounded-full px-3 py-1 text-xs uppercase tracking-wider mb-3 ${getColorClasses(
+                                dept.color
+                              ).badge}`}
+                            >
+                              Department Lead
+                            </p>
+                            <h4 className="text-xl font-semibold text-foreground truncate">
+                              {dept.lead.name}
+                            </h4>
+                            <p className="text-sm text-muted-foreground truncate mb-3">
+                              {dept.lead.role}
+                            </p>
+                            <p className="text-sm text-foreground/85">
+                              Leading {dept.name} with focus on execution, mentoring, and quality outcomes.
+                            </p>
+                          </div>
+                        </div>
+                      </motion.div>
                     </motion.div>
                   )}
 
                   <motion.div
-                    initial={{ opacity: 0, x: 30 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.6, delay: 0.2 + deptIndex * 0.1 }}
-                    className="md:basis-[68%] lg:basis-[70%]"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.2 + deptIndex * 0.1 }}
                   >
-                    <div className="grid grid-cols-3 gap-3 scale-95 items-stretch">
-                      {dept.members.slice(0, 6).map((member) => (
-                        <motion.div
-                          key={member._id}
-                          initial={{ opacity: 0, scale: 0.9 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ duration: 0.4 }}
-                          whileHover={{ scale: 1.05, y: -4 }}
-                          className="glass-card rounded-xl p-4 text-center min-h-[170px] flex flex-col justify-center"
-                        >
-                          <img
-                            src={member.image || "/placeholder.svg"}
-                            alt={member.name}
-                            className="w-16 h-16 rounded-full mx-auto mb-2 object-cover"
-                          />
-                          <h5 className="text-sm font-semibold text-foreground">
-                            {member.name}
-                          </h5>
-                          <p className="text-xs text-current">{member.role}</p>
-                        </motion.div>
-                      ))}
-                    </div>
+                    {dept.members.length > 0 ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 justify-items-center">
+                        {dept.members.map((member) => (
+                          <motion.div
+                            key={member._id}
+                            initial={{ opacity: 0, scale: 0.97 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.35 }}
+                            whileHover={{ y: -4 }}
+                            className="glass-card rounded-2xl p-3 border border-white/10 h-full w-full "
+                          >
+                            <div className="mb-3 flex justify-center">
+                              <img
+                                src={member.image || "/placeholder.svg"}
+                                loading="lazy"
+                                alt={member.name}
+                                className="w-[170px] h-[170px] rounded-xl object-cover"
+                              />
+                            </div>
+                            <h5 className="text-sm font-semibold text-foreground truncate mb-1 text-center">
+                              {member.name}
+                            </h5>
+                            <p className="text-xs text-muted-foreground truncate text-center">
+                              {member.role}
+                            </p>
+                            <p className={`text-xs mt-3 text-center ${getColorClasses(dept.color).accent}`}>
+                              {dept.name}
+                            </p>
+                          </motion.div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="rounded-2xl border border-dashed border-white/20 p-5 text-sm text-muted-foreground text-center">
+                        No additional team members listed yet.
+                      </div>
+                    )}
                   </motion.div>
                 </div>
               </div>

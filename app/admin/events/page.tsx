@@ -14,6 +14,7 @@ import ImageCropperDialog from "@/components/image-cropper-dialog"
 import { EventType } from "@/lib/types"
 
 export default function EventsAdminPage() {
+  type EventImageRatio = "square" | "portrait"
   const [events, setEvents] = useState<EventType[]>([])
 
   const [aTitle, setATitle] = useState("")
@@ -22,6 +23,7 @@ export default function EventsAdminPage() {
   const [aDescription, setADescription] = useState("")
   const [aGoogleForm, setAGoogleForm] = useState("")
   const [aImage, setAImage] = useState<string | undefined>(undefined)
+  const [aImageRatio, setAImageRatio] = useState<EventImageRatio>("portrait")
 
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editOpen, setEditOpen] = useState(false)
@@ -31,6 +33,7 @@ export default function EventsAdminPage() {
   const [eDescription, setEDescription] = useState("")
   const [eGoogleForm, setEGoogleForm] = useState("")
   const [eImage, setEImage] = useState<string | undefined>(undefined)
+  const [eImageRatio, setEImageRatio] = useState<EventImageRatio>("portrait")
 
   const [addCropOpen, setAddCropOpen] = useState(false)
   const [addCropSrc, setAddCropSrc] = useState<string | null>(null)
@@ -123,6 +126,7 @@ export default function EventsAdminPage() {
     setADescription("")
     setAGoogleForm("")
     setAImage(undefined)
+    setAImageRatio("portrait")
   }
   function resetEditForm() {
     setEditingId(null)
@@ -132,6 +136,7 @@ export default function EventsAdminPage() {
     setEDescription("")
     setEGoogleForm("")
     setEImage(undefined)
+    setEImageRatio("portrait")
   }
 
   const onAddDrop = (files: File[]) => {
@@ -225,8 +230,13 @@ export default function EventsAdminPage() {
     setEDescription(event.description)
     setEGoogleForm(event.googleFormLink || "")
     setEImage(event.image || "")
+    setEImageRatio("portrait")
     setEditOpen(true)
   }
+
+  const ratioAspect = (ratio: EventImageRatio) => (ratio === "square" ? 1 : 3 / 4)
+  const ratioOutput = (ratio: EventImageRatio) =>
+    ratio === "square" ? { w: 1080, h: 1080 } : { w: 1080, h: 1440 }
 
   return (
     <main className="mx-auto max-w-5xl px-4 pt-24 pb-8">
@@ -247,18 +257,18 @@ export default function EventsAdminPage() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {events.map((e) => (
               <div key={e._id} className="rounded-lg border border-border overflow-hidden bg-background/50">
-                <div className="relative w-full bg-muted/30 overflow-hidden" style={{ paddingTop: "56.25%" }}>
+                <div className="relative w-full bg-muted/30 overflow-hidden aspect-[3/4]">
                   {e.image ? (
                     <img
                       src={e.image || "/placeholder.svg"}
                       alt={e.title}
-                      className="absolute inset-0 h-full w-full object-cover"
+                      className="absolute inset-0 h-full w-full object-contain p-2"
                     />
                   ) : (
                     <img
                       src="/event-thumbnail-placeholder.jpg"
                       alt="Event thumbnail placeholder"
-                      className="absolute inset-0 h-full w-full object-cover"
+                      className="absolute inset-0 h-full w-full object-contain p-2"
                     />
                   )}
                 </div>
@@ -294,13 +304,41 @@ export default function EventsAdminPage() {
           }`}
         >
           <input {...getAddInputProps()} />
+          <div className="mb-3 flex items-center justify-center gap-2">
+            <Button
+              type="button"
+              size="sm"
+              variant={aImageRatio === "square" ? "default" : "outline"}
+              onClick={(e) => {
+                e.preventDefault()
+                setAImageRatio("square")
+              }}
+            >
+              1:1
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={aImageRatio === "portrait" ? "default" : "outline"}
+              onClick={(e) => {
+                e.preventDefault()
+                setAImageRatio("portrait")
+              }}
+            >
+              3:4
+            </Button>
+          </div>
           {aImage ? (
             <div className="flex flex-col items-center gap-3">
-              <div className="relative w-full rounded-md overflow-hidden" style={{ paddingTop: "56.25%" }}>
+              <div
+                className={`relative w-full rounded-md overflow-hidden ${
+                  aImageRatio === "square" ? "aspect-square" : "aspect-[3/4]"
+                }`}
+              >
                 <img
                   src={aImage || "/placeholder.svg"}
                   alt="Selected event"
-                  className="absolute inset-0 h-full w-full object-cover"
+                  className="absolute inset-0 h-full w-full object-contain p-2"
                 />
               </div>
               <div className="flex gap-2">
@@ -364,6 +402,7 @@ export default function EventsAdminPage() {
           ) : (
             <div className="text-sm text-muted-foreground">
               <p className="font-medium text-foreground mb-1">Upload event image</p>
+              <p>Preferred ratio: 1:1 or 3:4</p>
               <p>Drag & drop here, or click to select</p>
             </div>
           )}
@@ -437,9 +476,10 @@ export default function EventsAdminPage() {
               id="a-desc"
               value={aDescription}
               onChange={(e) => setADescription(e.target.value)}
-              placeholder="Short details..."
+              placeholder={"Use Markdown, e.g. **bold**, - list, [link](https://...) \nShort details..."}
               className="glass min-h-24 rounded-md px-3 py-2"
             />
+            <p className="text-xs text-muted-foreground">Markdown supported in cards and event dialog.</p>
           </div>
 
           {addIsFuture && (
@@ -472,18 +512,18 @@ export default function EventsAdminPage() {
         onOpenChange={setAddCropOpen}
         src={addCropSrc || "/placeholder.svg?height=512&width=512&query=event%20thumbnail"} // Fallback to placeholder
         onCropped={(dataUrl) => setAImage(dataUrl ?? "")} // Ensure a string is set
-        aspect={16 / 9}
-        outputWidth={1280}
-        outputHeight={720}
+        aspect={ratioAspect(aImageRatio)}
+        outputWidth={ratioOutput(aImageRatio).w}
+        outputHeight={ratioOutput(aImageRatio).h}
       />
       <ImageCropperDialog
         open={editCropOpen}
         onOpenChange={setEditCropOpen}
         src={editCropSrc || "/placeholder.svg?height=512&width=512&query=event%20thumbnail"} // Fallback to placeholder
         onCropped={(dataUrl) => setEImage(dataUrl ?? "")} // Ensure a string is set
-        aspect={16 / 9}
-        outputWidth={1280}
-        outputHeight={720}
+        aspect={ratioAspect(eImageRatio)}
+        outputWidth={ratioOutput(eImageRatio).w}
+        outputHeight={ratioOutput(eImageRatio).h}
       />
 
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
@@ -499,13 +539,41 @@ export default function EventsAdminPage() {
             }`}
           >
             <input {...getEditInputProps()} />
+            <div className="mb-3 flex items-center justify-center gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant={eImageRatio === "square" ? "default" : "outline"}
+                onClick={(ev) => {
+                  ev.preventDefault()
+                  setEImageRatio("square")
+                }}
+              >
+                1:1
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant={eImageRatio === "portrait" ? "default" : "outline"}
+                onClick={(ev) => {
+                  ev.preventDefault()
+                  setEImageRatio("portrait")
+                }}
+              >
+                3:4
+              </Button>
+            </div>
             {eImage ? (
               <div className="flex flex-col items-center gap-3">
-                <div className="relative w-full rounded-md overflow-hidden" style={{ paddingTop: "56.25%" }}>
+                <div
+                  className={`relative w-full rounded-md overflow-hidden ${
+                    eImageRatio === "square" ? "aspect-square" : "aspect-[3/4]"
+                  }`}
+                >
                   <img
                     src={eImage || "/placeholder.svg"} 
                     alt="Selected event"
-                    className="absolute inset-0 h-full w-full object-cover"
+                    className="absolute inset-0 h-full w-full object-contain p-2"
                   />
                 </div>
                 <div className="flex gap-2">
@@ -569,6 +637,7 @@ export default function EventsAdminPage() {
             ) : (
               <div className="text-sm text-muted-foreground">
                 <p className="font-medium text-foreground mb-1">Upload event image</p>
+                <p>Preferred ratio: 1:1 or 3:4</p>
                 <p>Drag & drop here, or click to select</p>
               </div>
             )}
@@ -647,8 +716,10 @@ export default function EventsAdminPage() {
                 id="e-desc"
                 value={eDescription}
                 onChange={(ev) => setEDescription(ev.target.value)}
+                placeholder={"Use Markdown, e.g. **bold**, - list, [link](https://...) \nShort details..."}
                 className="glass min-h-24 rounded-md px-3 py-2"
               />
+              <p className="text-xs text-muted-foreground">Markdown supported in cards and event dialog.</p>
             </div>
 
             {editIsFuture && (
