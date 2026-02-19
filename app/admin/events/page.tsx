@@ -261,12 +261,14 @@ export default function EventsAdminPage() {
                   {e.image ? (
                     <img
                       src={e.image || "/placeholder.svg"}
+                      loading="lazy"
                       alt={e.title}
                       className="absolute inset-0 h-full w-full object-contain p-2"
                     />
                   ) : (
                     <img
                       src="/event-thumbnail-placeholder.jpg"
+                      loading="lazy"
                       alt="Event thumbnail placeholder"
                       className="absolute inset-0 h-full w-full object-contain p-2"
                     />
@@ -337,6 +339,7 @@ export default function EventsAdminPage() {
               >
                 <img
                   src={aImage || "/placeholder.svg"}
+                  loading="lazy"
                   alt="Selected event"
                   className="absolute inset-0 h-full w-full object-contain p-2"
                 />
@@ -572,6 +575,7 @@ export default function EventsAdminPage() {
                 >
                   <img
                     src={eImage || "/placeholder.svg"} 
+                    loading="lazy"
                     alt="Selected event"
                     className="absolute inset-0 h-full w-full object-contain p-2"
                   />

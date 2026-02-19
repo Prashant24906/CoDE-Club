@@ -82,8 +82,10 @@ export function Events() {
     }
   }, [events])
 
-  const upcomingEvents = events.filter((event) => new Date(event.date) >= new Date())
-  const pastEvents = events.filter((event) => new Date(event.date) < new Date())
+  const now = new Date()
+  const isUpcomingEvent = (event: Event) => new Date(event.date) >= now
+  const upcomingEvents = events.filter(isUpcomingEvent)
+  const pastEvents = events.filter((event) => !isUpcomingEvent(event))
 
   if (!eventsEnabled) {
     return (
@@ -310,7 +312,7 @@ export function Events() {
                     )}
                   </div>
 
-                  {selectedEvent.googleFormLink && (
+                  {selectedEvent.googleFormLink && isUpcomingEvent(selectedEvent) && (
                     <a
                       href={selectedEvent.googleFormLink}
                       target="_blank"

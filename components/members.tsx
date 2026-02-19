@@ -34,6 +34,14 @@ export function Members() {
   const executiveTeam = members.filter(
     (m) => m.department === "Core Leadership"
   );
+  const president =
+    executiveTeam.find((member) => /president|predident/i.test(member.role)) ??
+    executiveTeam.find((member) => member.isHead) ??
+    executiveTeam[0] ??
+    null;
+  const executiveMembers = executiveTeam
+    .filter((member) => member._id !== president?._id)
+    .slice(0, 3);
 
   const groupedDepartments: Record<
     string,
@@ -125,31 +133,65 @@ export function Members() {
             Executive Leadership
           </motion.h3>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 max-w-6xl mx-auto">
-            {executiveTeam.map((member, index) => (
-                <motion.div
-                  key={member._id}
-                  initial={{ opacity: 0, y: 40 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.3 + index * 0.1 }}
-                  whileHover={{ y: -6 }}
-                  className="glass-card rounded-2xl p-4 sm:p-5 border border-white/10 h-full w-full max-w-[260px] sm:max-w-none mx-auto"
-                >
-                <div className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-blue-500/10 text-blue-600 dark:text-blue-300 mb-3">
-                  Executive Lead
-                </div>
-                <div className="relative mb-4">
+          {president && (
+            <div className="max-w-5xl mx-auto mb-8">
+              <motion.div
+                key={president._id}
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                whileHover={{ y: -6 }}
+                className="glass-card rounded-2xl p-4 sm:p-6 w-full min-h-[260px] sm:min-h-[320px] max-w-[520px] sm:max-w-none mx-auto"
+              >
+                <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-6 items-center h-full">
                   <img
-                    src={member.image || "/placeholder.svg"}
+                    src={president.image || "/placeholder.svg"}
                     loading="lazy"
-                    alt={member.name}
-                    className="w-[150px] h-[150px] sm:w-full sm:h-auto aspect-square rounded-xl object-cover mx-auto"
+                    alt={president.name}
+                    className="w-[160px] h-[160px] sm:w-full sm:h-auto md:w-[240px] aspect-square rounded-xl object-cover mx-auto"
                   />
+                  <div>
+                    <div className="inline-flex rounded-full px-3 py-1 text-xs font-semibold bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 mb-3">
+                      President
+                    </div>
+                    <h4 className="text-2xl font-semibold text-foreground mb-1">
+                      {president.name}
+                    </h4>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      {president.role}
+                    </p>
+                    <p className="text-sm text-foreground/85">
+                      Leading the executive team with vision, coordination, and accountability.
+                    </p>
+                  </div>
                 </div>
-                <h4 className="text-lg font-semibold mb-1 text-foreground">
+              </motion.div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-3 max-w-3xl mx-auto">
+            {executiveMembers.map((member, index) => (
+              <motion.div
+                key={member._id}
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.4 + index * 0.1 }}
+                whileHover={{ y: -6 }}
+                className="glass-card rounded-2xl p-3 sm:p-3.5 h-full w-full"
+              >
+                <img
+                  src={member.image || "/placeholder.svg"}
+                  loading="lazy"
+                  alt={member.name}
+                  className="w-[135px] h-[135px] sm:w-[150px] sm:h-[150px] rounded-xl object-cover mb-3 mx-auto"
+                />
+                <div className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-blue-500/10 text-blue-600 dark:text-blue-300 mb-2.5 mx-auto">
+                  Executive Member
+                </div>
+                <h4 className="text-base font-semibold text-foreground mb-1 text-center">
                   {member.name}
                 </h4>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs text-muted-foreground text-center">
                   {member.role}
                 </p>
               </motion.div>

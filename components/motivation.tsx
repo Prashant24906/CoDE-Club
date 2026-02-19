@@ -21,6 +21,13 @@ const hod: Teacher = {
 
 const teachers: Teacher[] = [
   {
+    name: "Mrs. P. L. Rakibe",
+    role: "Activity Coordinator",
+    image: "/motivation-teacher-3.svg",
+    motivation:
+      "Participation in activities builds leadership, confidence, and communication skills.",
+  },
+  {
     name: "Mrs. S. A. Kulkarni",
     role: "Academic Coordinator",
     image: "/motivation-teacher-1.svg",
@@ -33,13 +40,6 @@ const teachers: Teacher[] = [
     image: "/motivation-teacher-2.svg",
     motivation:
       "Structured guidance and regular practice turn students into dependable professionals.",
-  },
-  {
-    name: "Mrs. P. L. Rakibe",
-    role: "Activity Coordinator",
-    image: "/motivation-teacher-3.svg",
-    motivation:
-      "Participation in activities builds leadership, confidence, and communication skills.",
   },
   {
     name: "Ms. G. V. Mathad",
