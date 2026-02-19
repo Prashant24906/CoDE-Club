@@ -6,6 +6,16 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { AdminNavbar } from "@/components/admin-navbar"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter as AlertFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { useDropzone } from "react-dropzone"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
@@ -39,6 +49,8 @@ export default function EventsAdminPage() {
   const [addCropSrc, setAddCropSrc] = useState<string | null>(null)
   const [editCropOpen, setEditCropOpen] = useState(false)
   const [editCropSrc, setEditCropSrc] = useState<string | null>(null)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
 
   useEffect(() => {
     fetch("/api/events")
@@ -100,23 +112,29 @@ export default function EventsAdminPage() {
     }
   }
 
-  const deleteEvent = async (id: string) => {
-    if (!window.confirm("Delete this event?")) return
-
+  const deleteEvent = async () => {
+    if (!pendingDeleteId) return
     try {
       await fetch("/api/events", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id }),
+        body: JSON.stringify({ id: pendingDeleteId }),
       })
-      setEvents((prev) => prev.filter((e) => e._id !== id))
-      if (editingId === id) {
+      setEvents((prev) => prev.filter((e) => e._id !== pendingDeleteId))
+      if (editingId === pendingDeleteId) {
         setEditOpen(false)
         resetEditForm()
       }
+      setDeleteDialogOpen(false)
+      setPendingDeleteId(null)
     } catch (err) {
       console.error("Failed to delete event:", err)
     }
+  }
+
+  const openDeleteDialog = (id: string) => {
+    setPendingDeleteId(id)
+    setDeleteDialogOpen(true)
   }
 
   function resetAddForm() {
@@ -286,7 +304,7 @@ export default function EventsAdminPage() {
                     <Button size="sm" variant="secondary" onClick={() => openEdit(e)}>
                       Edit
                     </Button>
-                    <Button size="sm" variant="destructive" onClick={() => deleteEvent(e._id!)}>
+                    <Button size="sm" variant="destructive" onClick={() => openDeleteDialog(e._id!)}>
                       Delete
                     </Button>
                   </div>
@@ -752,6 +770,31 @@ export default function EventsAdminPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <AlertDialog
+        open={deleteDialogOpen}
+        onOpenChange={(open) => {
+          setDeleteDialogOpen(open)
+          if (!open) setPendingDeleteId(null)
+        }}
+      >
+        <AlertDialogContent className="glass-card">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete This Event?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. The selected event will be permanently removed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={deleteEvent}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </main>
   )
 }

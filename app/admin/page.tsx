@@ -10,12 +10,26 @@ import { Settings, Users, Calendar, BarChart3, Shield, ArrowLeft, Eye, EyeOff, S
 import Link from "next/link"
 import { ParticleBackground } from "@/components/particle-background"
 import { AdminNavbar } from "@/components/admin-navbar"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 export default function AdminPage() {
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [quizEnabled, setQuizEnabled] = useState(false)
   const [eventsEnabled, setEventsEnabled] = useState(true)
+  const [alertState, setAlertState] = useState({
+    open: false,
+    title: "",
+    description: "",
+  })
   useEffect(() => {
     const adminSettings = localStorage.getItem("codeClubAdminSettings")
     if (adminSettings) {
@@ -26,12 +40,15 @@ export default function AdminPage() {
   }, [])
 
   const { data: session, status } = useSession()
+  const openAlert = (title: string, description: string) => {
+    setAlertState({ open: true, title, description })
+  }
 
   const handleLogin = async () => {
     // Use NextAuth credentials provider. The credentials provider only expects a password.
     const res = await signIn("credentials", { redirect: false, password })
     if ((res as any)?.error) {
-      alert("Invalid password")
+      openAlert("Login Failed", "Invalid password.")
     }
   }
 
@@ -42,7 +59,7 @@ export default function AdminPage() {
       lastUpdated: new Date().toISOString(),
     }
     localStorage.setItem("codeClubAdminSettings", JSON.stringify(settings))
-    alert("Settings saved successfully!")
+    openAlert("Settings Saved", "Settings saved successfully!")
   }
 
   // dynamic stats (fetched from API)
@@ -254,6 +271,20 @@ export default function AdminPage() {
           </motion.div>
         </motion.div>
       </div>
+      <AlertDialog
+        open={alertState.open}
+        onOpenChange={(open) => setAlertState((prev) => ({ ...prev, open }))}
+      >
+        <AlertDialogContent className="glass-card">
+          <AlertDialogHeader>
+            <AlertDialogTitle>{alertState.title}</AlertDialogTitle>
+            <AlertDialogDescription>{alertState.description}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction>OK</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </main>
   )
 }

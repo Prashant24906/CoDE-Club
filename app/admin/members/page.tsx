@@ -3,6 +3,15 @@ import AdminNavbar from "@/components/admin-navbar"
 import { useDropzone } from "react-dropzone"
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter as AlertFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
@@ -65,6 +74,14 @@ export default function MembersAdminPage() {
 
   const [isUploading, setIsUploading] = useState(false)
   const [editIsUploading, setEditIsUploading] = useState(false)
+  const [alertState, setAlertState] = useState({
+    open: false,
+    title: "",
+    description: "",
+  })
+  const openAlert = (title: string, description: string) => {
+    setAlertState({ open: true, title, description })
+  }
 
   useEffect(() => {
     async function fetchMembers() {
@@ -129,7 +146,7 @@ export default function MembersAdminPage() {
       resetAddForm()
     } catch (err) {
       console.error("Error adding member:", err)
-      alert("Failed to upload image or add member")
+      openAlert("Add Member Failed", "Failed to upload image or add member.")
     } finally {
       setIsUploading(false)
     }
@@ -220,7 +237,7 @@ export default function MembersAdminPage() {
       resetEditForm()
     } catch (err) {
       console.error("Error saving member:", err)
-      alert("Failed to update member")
+      openAlert("Update Failed", "Failed to update member.")
     } finally {
       setEditIsUploading(false)
     }
@@ -459,6 +476,20 @@ export default function MembersAdminPage() {
         outputWidth={512}
         outputHeight={512}
       />
+      <AlertDialog
+        open={alertState.open}
+        onOpenChange={(open) => setAlertState((prev) => ({ ...prev, open }))}
+      >
+        <AlertDialogContent className="glass-card">
+          <AlertDialogHeader>
+            <AlertDialogTitle>{alertState.title}</AlertDialogTitle>
+            <AlertDialogDescription>{alertState.description}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertFooter>
+            <AlertDialogAction>OK</AlertDialogAction>
+          </AlertFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </main>
   )
 }
