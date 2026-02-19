@@ -183,10 +183,12 @@ export function Members() {
                   src={member.image || "/placeholder.svg"}
                   loading="lazy"
                   alt={member.name}
-                  className="w-[135px] h-[135px] sm:w-[150px] sm:h-[150px] rounded-xl object-cover mb-3 mx-auto"
+                  className="w-[130px] h-[130px] sm:w-[170px] sm:h-[170px] rounded-xl object-cover mb-3 mx-auto"
                 />
-                <div className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-blue-500/10 text-blue-600 dark:text-blue-300 mb-2.5 mx-auto">
-                  Executive Member
+                <div className="flex justify-center mb-2.5">
+                  <div className="inline-flex text-center items-center rounded-full px-3 py-1 text-xs font-semibold bg-blue-500/10 text-blue-600 dark:text-blue-300">
+                    Executive Member
+                  </div>
                 </div>
                 <h4 className="text-base font-semibold text-foreground mb-1 text-center">
                   {member.name}
