@@ -1,8 +1,8 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
-import "./globals.css"
 import Providers from "./providers"
+import "./globals.css"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -12,7 +12,9 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Code Club - University Tech Community",
   description: "Join our vibrant community of developers, designers, and tech enthusiasts",
-    generator: 'v0.app'
+  icons: {
+    icon: "/codeclub1.png",
+  },
 }
 
 export default function RootLayout({
